@@ -14,7 +14,7 @@
 --    aura displays are simply shown in the background color to hide them.)
 --    Change "bkColor" below if you are not using a black background.
 --
--- v62 - Fix bug (no #) in priest evangelism aura, fix problem with player's party frame using layout for player frame
+-- v63 - Release 0.02
 
 -- future: blink time check uses exptime-gettime(); thus currently no support for embed.blink
 -- future: my '|cff' strings aren't always balanced by '|r'
@@ -191,11 +191,13 @@ else
     -- DRUID - spec numbers: Balance=1, Feral Combat=2, Restoration=3, forms: bear=1, cat=3, moonkin=5, tree=6
     elseif playerClass == "DRUID" then 
       -- Druid auras for player
-      player:buff {name="Savage Roar", bar="R+++++  ", slowLen=8.0, color=orange, } --14-42s duration
-      player:buff {name="Pulverize", bar="P----++  ", color=orange, } -- 14s duration
-      -- Berserk cooldown is 50334 (Berserk proc is 93622).  Both have same name, so can't just scan by name.  There is no scan by id...
-      -- cat: Berserk (15s+), Tiger's Fury (6s), Savage Roar (14-42s), Dash? (15s), Survival Instincts? (12s), Barkskin? (12s)
-      -- bear: Berserk (15s+), Pulverize (14s), Frenzied Regeneration? (20s), Survival Instincts? (12s), Barkskin? (12s), Enrage? (10s)
+      if playerSpec==2 then
+        player:buff {name="Savage Roar", bar="R+++++  ", slowLen=8.0, color=orange, } --14-42s duration
+        player:buff {name="Pulverize", bar="P----++  ", color=orange, } -- 14s duration
+        -- Berserk cooldown is 50334 (Berserk proc is 93622).  Both have same name, so can't just scan by name.  There is no scan by id...
+        -- cat: Berserk (15s+), Tiger's Fury (6s), Savage Roar (14-42s), Dash? (15s), Survival Instincts? (12s), Barkskin? (12s)
+        -- bear: Berserk (15s+), Pulverize (14s), Frenzied Regeneration? (20s), Survival Instincts? (12s), Barkskin? (12s), Enrage? (10s)
+      end
       
       
       -- Druid auras for allies
@@ -318,6 +320,7 @@ else
       -- Mage auras for player
       player:buff {name="Ice Barrier", bar="B+++  ", color=cyan, cooldown="Ice Barrier", ifKnown="Ice Barrier", } -- 60s duration, 30s cooldown
       player:buff {name="Mana Shield", bar="M+++  ", color=yellow, cooldown="Mana Shield", } -- 60s duration, 12s/10s cooldown
+      player:buff {name="Focus Magic", bar="F ", color=blue.pale, showOthers=true, ifKnown="Focus Magic",}
       -- mirror image? (30s), arcane power? (15s, ifKnown)
       
       -- Mage auras for allies
@@ -381,6 +384,13 @@ else
       player:buff {name="Avenging Wrath", bar="AW+++  ", color=yellow, } -- 20s
       player:buff {name="Divine Plea", bar="DP+++  ", color=red, } -- 9s
       player:buff {name="Conviction", bar="C#+++  ", color=orange, ifSpec=1, } -- 15s
+      player:buff_set {name="[hand]",       bar="F+++  ", color=yellow, set={
+        buff {name="Hand of Freedom",     bar="F+++  ", color=yellow,},
+        buff {name="Hand of Protection",  bar="P+++  ", color=yellow.vivid,},
+        buff {name="Hand of Sacrifice",   bar="S+++  ", color=yellow,},
+        buff {name="Hand of Salvation",   bar="V+++  ", color=yellow,},
+      }}
+      player:debuff {name="Forbearance", bar="Forb.  ", color=red.vivid, showOthers=true,}
     
       -- Paladin auras for allies
       ally:buff {name="Beacon of Light", bar="B+++++  ", color=orange, fastLen=6, ifKnown="Beacon of Light"}
@@ -419,6 +429,11 @@ else
       --  Shadow
       player:buff {name="Shadow Orb", bar="Orbs:# ", color=magenta, showInactive=true, ifSpec=3, }
       player:buff {name="Empowered Shadow", bar="ES-----++  ", color=violet.vivid, showInactive=true, ifSpec=3, }
+      --  all specs
+      player:buff {name="Renew",              bar="R--++ ",   color=green, showInactive=true,} -- 12s duration
+      player:buff {name="Power Word: Shield", bar="S----+++ ", color=white, showInactive=true, showOthers=true, -- 30s duration
+        embed = debuff {name="Weakened Soul", bar="W",     color=red, showOthers=true,} -- 15sec
+      }
       
 
       -- Priest auras for allies
@@ -482,8 +497,8 @@ else
       ally:buff {name="Earthliving",         bar="L++  ",     color=yellow, ifSpec=3}
       ally:buff_set {name="[Shield]",  bar="LS#+++  ", color=brown, showOthers=true, set= {
         buff {name="Earth Shield",     bar="ES#+++  ", color=brown, showOthers=true,},
-        buff {name="Water Shield",     bar="WS#+++  ", color=blue,  showOthers=true,},
-        buff {name="Lightning Shield", bar="LS#+++  ", color=cyan,  showOthers=true,},
+        buff {name="Water Shield",     bar="WS#+++  ", color=blue,  },
+        buff {name="Lightning Shield", bar="LS#+++  ", color=cyan,  },
       }}
       
       -- Shaman auras for enemies
@@ -500,6 +515,7 @@ else
     -- WARLOCK - spec numbers: Affliction=1, Demonology=2, Destruction=3
     elseif playerClass == "WARLOCK" then
       -- Warlock auras for player
+      player:buff {name="Dark Intent", bar="DI+++  ", color=blue, showOthers=true, }
       player:buff_set {name="[ward]", bar="W+++  ", color=magenta.pale, set={
         buff {name="Shadow Ward",   bar="W+++  ", oolor=magenta.pale,}, -- 30s duration & cooldown
         buff {name="Nether Ward",   bar="W+++  ", color=green.pale,},  -- 30s duration & cooldown
@@ -508,7 +524,7 @@ else
       
       
       -- Warlock auras for allies
-      ally:buff {name="Dark Intent", bar="DI+++  ", color=blue,}
+      ally:buff {name="Dark Intent", bar="DI+++  ", color=blue, showOthers=true, }
       
       
       -- Warlock auras for enemies
