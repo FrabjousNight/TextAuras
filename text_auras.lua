@@ -14,7 +14,7 @@
 --    aura displays are simply shown in the background color to hide them.)
 --    Change "bkColor" below if you are not using a black background.
 --
--- v61 - Release 0.01
+-- v62 - Fix bug (no #) in priest evangelism aura, fix problem with player's party frame using layout for player frame
 
 -- future: blink time check uses exptime-gettime(); thus currently no support for embed.blink
 -- future: my '|cff' strings aren't always balanced by '|r'
@@ -146,6 +146,8 @@ else
     
     * If a display should be present when any one of a set of auras is present, use
         buff_set instead of buff.  See the Shaman shield spells for a usage example.
+        Note: each aura (including the parent) must have the same kinds of variable elements
+        in the 'bar' setting, i.e. code, count, fast bar, slow bar.
     
     * You can embed an aura inside another one.  The embedded aura's time will be shown in the left
          part of the timer bar, followed by the remaining part of the main aura.
@@ -402,7 +404,7 @@ else
     elseif playerClass == "PRIEST" then
       -- Priest auras for player
       --  all specs
-      player:buff_set {name="[evangelism]", bar="E1  ", color=brown.vivid, set={
+      player:buff_set {name="[evangelism]", bar="E#  ", color=brown.vivid, set={
         buff {name="Evangelism",            bar="E#  ", color=brown.vivid, },
         buff {name="Dark Evangelism",       bar="E#  ", color=brown.vivid, },
       }}
@@ -1463,6 +1465,10 @@ else
 --DEBUG    
 --print(mytime(), "Build: unit=", unit, ", event=", event)    
     local unit_key = unit
+    if unit_key=='player' and not font_string.frame.is_singleton then
+      -- hack to prevent the party/raid frame for the player from using the player frame's layout
+      unit_key='_friend'
+    end
     if not cache.unit_auras[unit_key] or #(cache.unit_auras[unit_key]) == 0 then
       -- no aura setup is specifically defined for this unit frame, so use the generic friend/enemy setup
       if UnitIsFriend('player', unit) then
